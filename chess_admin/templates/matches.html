@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Trận đấu</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="navbar">
+    <a href="/">Tổng quan</a>
+    <a href="/accounts">Tài khoản</a>
+    <a href="/matches">Trận đấu</a>
+    <a href="/posts">Bài viết</a>
+</div>
+
+<div class="container">
+    <h1>Quản lý Trận đấu</h1>
+    <button onclick="showAddForm()">Thêm trận đấu</button>
+    <table id="matchesTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Người chơi 1</th>
+                <th>Người chơi 2</th>
+                <th>Mã bàn</th>
+                <th>Kết thúc trận</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<!-- POPUP FORM -->
+<div class="popup" id="popupForm">
+    <div class="box">
+        <h3 id="formTitle">Thêm trận đấu</h3>
+        <input type="number" id="maTK1" placeholder="ID người chơi 1">
+        <input type="number" id="maTK2" placeholder="ID người chơi 2">
+        <input type="number" id="maBan" placeholder="Mã bàn">
+        <input type="text" id="ketThucTran" placeholder="Kết thúc trận" value="Đang diễn ra">
+        <button onclick="submitForm()">Lưu</button>
+        <button onclick="closeForm()">Đóng</button>
+    </div>
+</div>
+
+<script>
+let editId = null;
+
+function fetchMatches() {
+    fetch('/api/matches')
+    .then(res=>res.json())
+    .then(data=>{
+        const tbody = document.querySelector('#matchesTable tbody');
+        tbody.innerHTML = '';
+        data.forEach(match=>{
+            tbody.innerHTML += `
+            <tr>
+                <td>${match.maTD}</td>
+                <td>${match.maTK1}</td>
+                <td>${match.maTK2}</td>
+                <td>${match.maBan}</td>
+                <td>${match.ketThucTran}</td>
+                <td>
+                    <button onclick="editMatch(${match.maTD})">Sửa</button>
+                    <button onclick="deleteMatch(${match.maTD})">Xóa</button>
+                </td>
+            </tr>
+            `;
+        });
+    });
+}
+
+function showAddForm(){
+    editId = null;
+    document.getElementById('formTitle').innerText = 'Thêm trận đấu';
+    document.getElementById('maTK1').value='';
+    document.getElementById('maTK2').value='';
+    document.getElementById('maBan').value='';
+    document.getElementById('ketThucTran').value='Đang diễn ra';
+    document.getElementById('popupForm').classList.add('active');
+}
+
+function closeForm(){
+    document.getElementById('popupForm').classList.remove('active');
+}
+
+function submitForm(){
+    const data = {
+        maTK1: parseInt(document.getElementById('maTK1').value),
+        maTK2: parseInt(document.getElementById('maTK2').value),
+        maBan: parseInt(document.getElementById('maBan').value),
+        ketThucTran: document.getElementById('ketThucTran').value
+    };
+    let url = '/api/matches';
+    let method = 'POST';
+    if(editId){
+        url += '/' + editId;
+        method = 'PUT';
+    }
+    fetch(url, {
+        method: method,
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+    }).then(res=>{
+        fetchMatches();
+        closeForm();
+    });
+}
+
+function editMatch(id){
+    editId = id;
+    fetch('/api/matches')
+    .then(res=>res.json())
+    .then(data=>{
+        const match = data.find(m=>m.maTD===id);
+        document.getElementById('formTitle').innerText = 'Sửa trận đấu';
+        document.getElementById('maTK1').value = match.maTK1;
+        document.getElementById('maTK2').value = match.maTK2;
+        document.getElementById('maBan').value = match.maBan;
+        document.getElementById('ketThucTran').value = match.ketThucTran;
+        document.getElementById('popupForm').classList.add('active');
+    });
+}
+
+function deleteMatch(id){
+    if(confirm('Bạn có chắc muốn xóa?')){
+        fetch('/api/matches/'+id, {method:'DELETE'}).then(()=>fetchMatches());
+    }
+}
+
+fetchMatches();
+</script>

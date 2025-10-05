@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Bài viết</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="navbar">
+    <a href="/">Tổng quan</a>
+    <a href="/accounts">Tài khoản</a>
+    <a href="/matches">Trận đấu</a>
+    <a href="/posts">Bài viết</a>
+</div>
+
+<div class="container">
+    <h1>Quản lý Bài viết</h1>
+    <button onclick="showAddForm()">Thêm bài viết</button>
+    <table id="postsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tiêu đề</th>
+                <th>Nội dung</th>
+                <th>ID Người đăng</th>
+                <th>Ngày đăng</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<!-- POPUP FORM -->
+<div class="popup" id="popupForm">
+    <div class="box">
+        <h3 id="formTitle">Thêm bài viết</h3>
+        <input type="text" id="tieuDe" placeholder="Tiêu đề">
+        <textarea id="noiDung" placeholder="Nội dung"></textarea>
+        <input type="number" id="maTK" placeholder="ID Người đăng">
+        <button onclick="submitForm()">Lưu</button>
+        <button onclick="closeForm()">Đóng</button>
+    </div>
+</div>
+
+<script>
+let editId = null;
+
+function fetchPosts() {
+    fetch('/api/posts')
+    .then(res=>res.json())
+    .then(data=>{
+        const tbody = document.querySelector('#postsTable tbody');
+        tbody.innerHTML = '';
+        data.forEach(post=>{
+            tbody.innerHTML += `
+            <tr>
+                <td>${post.maBV}</td>
+                <td>${post.tieuDe}</td>
+                <td>${post.noiDung}</td>
+                <td>${post.maTK}</td>
+                <td>${post.ngayDang}</td>
+                <td>
+                    <button onclick="editPost(${post.maBV})">Sửa</button>
+                    <button onclick="deletePost(${post.maBV})">Xóa</button>
+                </td>
+            </tr>
+            `;
+        });
+    });
+}
+
+function showAddForm(){
+    editId = null;
+    document.getElementById('formTitle').innerText = 'Thêm bài viết';
+    document.getElementById('tieuDe').value='';
+    document.getElementById('noiDung').value='';
+    document.getElementById('maTK').value='';
+    document.getElementById('popupForm').classList.add('active');
+}
+
+function closeForm(){
+    document.getElementById('popupForm').classList.remove('active');
+}
+
+function submitForm(){
+    const data = {
+        tieuDe: document.getElementById('tieuDe').value,
+        noiDung: document.getElementById('noiDung').value,
+        maTK: parseInt(document.getElementById('maTK').value)
+    };
+    let url = '/api/posts';
+    let method = 'POST';
+    if(editId){
+        url += '/' + editId;
+        method = 'PUT';
+    }
+    fetch(url, {
+        method: method,
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+    }).then(res=>{
+        fetchPosts();
+        closeForm();
+    });
+}
+
+function editPost(id){
+    editId = id;
+    fetch('/api/posts')
+    .then(res=>res.json())
+    .then(data=>{
+        const post = data.find(p=>p.maBV===id);
+        document.getElementById('formTitle').innerText = 'Sửa bài viết';
+        document.getElementById('tieuDe').value = post.tieuDe;
+        document.getElementById('noiDung').value = post.noiDung;
+        document.getElementById('maTK').value = post.maTK;
+        document.getElementById('popupForm').classList.add('active');
+    });
+}
+
+function deletePost(id){
+    if(confirm('Bạn có chắc muốn xóa?')){
+        fetch('/api/posts/'+id, {method:'DELETE'}).then(()=>fetchPosts());
+    }
+}
+
+fetchPosts();
+</script>

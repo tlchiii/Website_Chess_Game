@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Tài khoản</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="navbar">
+    <a href="/">Tổng quan</a>
+    <a href="/accounts">Tài khoản</a>
+    <a href="/matches">Trận đấu</a>
+    <a href="/posts">Bài viết</a>
+</div>
+
+<div class="container">
+    <h1>Quản lý Tài khoản</h1>
+    <button onclick="showAddForm()">Thêm tài khoản</button>
+    <table id="accountsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên TK</th>
+                <th>Email</th>
+                <th>Điểm</th>
+                <th>Màu cờ</th>
+                <th>Trạng thái</th>
+                <th>Phân quyền</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<!-- POPUP FORM -->
+<div class="popup" id="popupForm">
+    <div class="box">
+        <h3 id="formTitle">Thêm tài khoản</h3>
+        <input type="text" id="tenTK" placeholder="Tên tài khoản">
+        <input type="password" id="matKhau" placeholder="Mật khẩu">
+        <input type="email" id="email" placeholder="Email">
+        <input type="number" id="diem" placeholder="Điểm" value="0">
+        <input type="text" id="mauCo" placeholder="Màu cờ">
+        <input type="text" id="trangThai" placeholder="Trạng thái" value="hoạt động">
+        <input type="text" id="phanQuyen" placeholder="Phân quyền" value="nguoidung">
+        <button onclick="submitForm()">Lưu</button>
+        <button onclick="closeForm()">Đóng</button>
+    </div>
+</div>
+
+<script>
+let editId = null;
+
+function fetchAccounts() {
+    fetch('/api/accounts')
+    .then(res=>res.json())
+    .then(data=>{
+        const tbody = document.querySelector('#accountsTable tbody');
+        tbody.innerHTML = '';
+        data.forEach(acc=>{
+            tbody.innerHTML += `
+            <tr>
+                <td>${acc.maTK}</td>
+                <td>${acc.tenTK}</td>
+                <td>${acc.email}</td>
+                <td>${acc.diem}</td>
+                <td>${acc.mauCo}</td>
+                <td>${acc.trangThai}</td>
+                <td>${acc.phanQuyen}</td>
+                <td>
+                    <button onclick="editAccount(${acc.maTK})">Sửa</button>
+                    <button onclick="deleteAccount(${acc.maTK})">Xóa</button>
+                </td>
+            </tr>
+            `;
+        });
+    });
+}
+
+function showAddForm(){
+    editId = null;
+    document.getElementById('formTitle').innerText = 'Thêm tài khoản';
+    document.getElementById('tenTK').value='';
+    document.getElementById('matKhau').value='';
+    document.getElementById('email').value='';
+    document.getElementById('diem').value=0;
+    document.getElementById('mauCo').value='';
+    document.getElementById('trangThai').value='hoạt động';
+    document.getElementById('phanQuyen').value='nguoidung';
+    document.getElementById('popupForm').classList.add('active');
+}
+
+function closeForm(){
+    document.getElementById('popupForm').classList.remove('active');
+}
+
+function submitForm(){
+    const data = {
+        tenTK: document.getElementById('tenTK').value,
+        matKhau: document.getElementById('matKhau').value,
+        email: document.getElementById('email').value,
+        diem: parseInt(document.getElementById('diem').value),
+        mauCo: document.getElementById('mauCo').value,
+        trangThai: document.getElementById('trangThai').value,
+        phanQuyen: document.getElementById('phanQuyen').value
+    };
+    let url = '/api/accounts';
+    let method = 'POST';
+    if(editId){
+        url += '/' + editId;
+        method = 'PUT';
+    }
+    fetch(url, {
+        method: method,
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+    }).then(res=>{
+        fetchAccounts();
+        closeForm();
+    });
+}
+
+function editAccount(id){
+    editId = id;
+    fetch('/api/accounts')
+    .then(res=>res.json())
+    .then(data=>{
+        const acc = data.find(a=>a.maTK===id);
+        document.getElementById('formTitle').innerText = 'Sửa tài khoản';
+        document.getElementById('tenTK').value = acc.tenTK;
+        document.getElementById('matKhau').value = acc.matKhau;
+        document.getElementById('email').value = acc.email;
+        document.getElementById('diem').value = acc.diem;
+        document.getElementById('mauCo').value = acc.mauCo;
+        document.getElementById('trangThai').value = acc.trangThai;
+        document.getElementById('phanQuyen').value = acc.phanQuyen;
+        document.getElementById('popupForm').classList.add('active');
+    });
+}
+
+function deleteAccount(id){
+    if(confirm('Bạn có chắc muốn xóa?')){
+        fetch('/api/accounts/'+id, {method:'DELETE'}).then(()=>fetchAccounts());
+    }
+}
+
+fetchAccounts();
+</script>
