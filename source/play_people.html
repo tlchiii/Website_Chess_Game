@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play VS people</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <!-- biểu tượng menu -->
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+    <div class="navbar" id="navbar">
+        <h2>Menu</h2>
+        <ul>
+        <li><a href="#">Trang chủ</a></li>
+        <li><a href="#">Chơi với máy</a></li>
+        <li><a href="#">Chơi 2 người</a></li>
+        <li><a href="#">Phân tích ván cờ</a></li>
+        <li><a href="#">Hướng dẫn</a></li>
+        </ul>
+    </div>
+
+    <div id="container">
+        <div id="main_content">
+
+            <!-- Đối thủ -->
+            <div class="player opponent-player">
+                <div class="player-info">
+                    <img src="./asset/model/bot.png" alt="Opponent Avatar" class="avatar">
+                    
+                    <div class="player-detail">
+                        <p class="player_name">Đối thủ</p>
+                        <div class="captured-pieces" id="capturedByOpponent">
+                            <!-- Các quân của bạn bị ăn sẽ hiển thị ở đây -->
+                             <img src="./asset/black/tot_den.png" alt="Tot">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thời gian nằm trong player-info nhưng tách riêng -->
+                <div class="player-timer">
+                    <span id="opponentTimer">10:00</span>
+                </div>
+                
+            </div>
+
+
+
+            <div class="chessBoard">
+                <!-- 8*8 8 hang, moi hang 8 cot -->
+                <!-- hang 1 -->
+                <div class="ovuong white" id="1h">
+                    <div class="coordinate rank xanhText">1</div>
+                    <div class="quanco xe" >
+                        <img src="./asset/black/xe_den.png" alt="Xe">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="1g">
+                    <div class="quanco ma" >
+                        <img src="./asset/black/ma_den.png" alt="Ma">
+                    </div>
+                </div>
+                <div class="ovuong white" id="1f">
+                    <div class="quanco tuong" >
+                        <img src="./asset/black/tuong_den.png" alt="Tuong">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="1e">
+                    <div class="quanco hau" >
+                        <img src="./asset/black/hau_den.png" alt="Hau">
+                    </div>
+                </div>
+                <div class="ovuong white" id="1d">
+                    <div class="quanco vua" >
+                        <img src="./asset/black/vua_den.png" alt="Vua">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="1c">
+                    <div class="quanco tuong" >
+                        <img src="./asset/black/tuong_den.png" alt="Tuong">
+                    </div>
+                </div>
+                <div class="ovuong white" id="1b">
+                    <div class="quanco ma" >
+                        <img src="./asset/black/ma_den.png" alt="Ma">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="1a">
+                    <div class="quanco xe" >
+                        <img src="./asset/black/xe_den.png" alt="Xe">
+                    </div>
+                </div>
+
+                <!-- hang 2 -->
+                <div class="ovuong xanh" id="2h">
+                    <div class="coordinate rank whiteText">2</div>
+                    <div class="quanco tot" >
+                        <img src="./asset/black/tot_den.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong white" id="2g">
+                    <div class="quanco tot" >
+                        <img src="./asset/black/tot_den.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="2f">
+                    <div class="quanco tot" >
+                        <img src="./asset/black/tot_den.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong white" id="2e">
+                    <div class="quanco tot" >
+                        <img src="./asset/black/tot_den.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="2d">
+                    <div class="quanco tot" >
+                        <img src="./asset/black/tot_den.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong white" id="2c">
+                    <div class="quanco tot" >
+                        <img src="./asset/black/tot_den.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="2b">
+                    <div class="quanco tot" >
+                        <img src="./asset/black/tot_den.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong white" id="2a">
+                    <div class="quanco tot" >
+                        <img src="./asset/black/tot_den.png" alt="Tot">
+                    </div>
+                </div>
+
+                <!-- hang 3 -->
+                <div class="ovuong white" id="3h">
+                    <div class="coordinate rank xanhText">3</div>
+                </div>
+                <div class="ovuong xanh" id="3g"></div>
+                <div class="ovuong white" id="3f"></div>
+                <div class="ovuong xanh" id="3e"></div>
+                <div class="ovuong white" id="3d"></div>
+                <div class="ovuong xanh" id="3c"></div>
+                <div class="ovuong white" id="3b"></div>
+                <div class="ovuong xanh" id="3a"></div>
+
+                <!-- hang 4 -->
+                <div class="ovuong xanh" id="4h">
+                    <div class="coordinate rank whiteText">4</div>
+                </div>
+                <div class="ovuong white" id="4g"></div>
+                <div class="ovuong xanh" id="4f"></div>
+                <div class="ovuong white" id="4e"></div>
+                <div class="ovuong xanh" id="4d"></div>
+                <div class="ovuong white" id="4c"></div>
+                <div class="ovuong xanh" id="4b"></div>
+                <div class="ovuong white" id="4a"></div>
+
+                <!-- hang 5 -->
+                <div class="ovuong white" id="5h">
+                    <div class="coordinate rank xanhText">5</div>
+                </div>
+                <div class="ovuong xanh" id="5g"></div>
+                <div class="ovuong white" id="5f"></div>
+                <div class="ovuong xanh" id="5e"></div>
+                <div class="ovuong white" id="5d"></div>
+                <div class="ovuong xanh" id="5c"></div>
+                <div class="ovuong white" id="5b"></div>
+                <div class="ovuong xanh" id="5a"></div>
+
+                <!-- hang 6 -->
+                <div class="ovuong xanh" id="6h">
+                    <div class="coordinate rank whiteText">6</div>
+                </div>
+                <div class="ovuong white" id="6g"></div>
+                <div class="ovuong xanh" id="6f"></div>
+                <div class="ovuong white" id="6e"></div>
+                <div class="ovuong xanh" id="6d"></div>
+                <div class="ovuong white" id="6c"></div>
+                <div class="ovuong xanh" id="6b"></div>
+                <div class="ovuong white" id="6a"></div>
+
+                <!-- hang 7 -->
+                <div class="ovuong white" id="7h">
+                    <div class="coordinate rank xanhText">7</div>
+                    <div class="quanco tot" >
+                        <img src="./asset/white/tot_trang.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="7g">
+                    <div class="quanco tot" >
+                        <img src="./asset/white/tot_trang.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong white" id="7f">
+                    <div class="quanco tot" >
+                        <img src="./asset/white/tot_trang.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="7e">
+                    <div class="quanco tot" >
+                        <img src="./asset/white/tot_trang.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong white" id="7d">
+                    <div class="quanco tot" >
+                        <img src="./asset/white/tot_trang.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="7c">
+                    <div class="quanco tot" >
+                        <img src="./asset/white/tot_trang.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong white" id="7b">
+                    <div class="quanco tot" >
+                        <img src="./asset/white/tot_trang.png" alt="Tot">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="7a">
+                    <div class="quanco tot" >
+                        <img src="./asset/white/tot_trang.png" alt="Tot">
+                    </div>
+                </div>
+
+                <!-- hang 8 -->
+                <div class="ovuong xanh" id="8h">
+                    <!-- coordinate : toa do -->
+                    <div class="coordinate rank whiteText">8</div>
+                    <div class="coordinate  whiteText">h</div>
+                    <div class="quanco xe" >
+                        <img src="./asset/white/xe_trang.png" alt="Xe">
+                    </div>
+                </div>
+                <div class="ovuong white" id="8g">
+                    <div class="coordinate xanhText">g</div>
+                    <div class="quanco ma" color="white" >
+                        <img src="./asset/white/ma_trang.png" alt="Ma">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="8f">
+                    <div class="coordinate whiteText">f</div>
+                    <div class="quanco tuong" color="white" >
+                        <img src="./asset/white/tuong_trang.png" alt="Tuong">
+                    </div>
+                </div>
+                <div class="ovuong white" id="8e">
+                    <div class="coordinate xanhText">e</div>
+                    <div class="quanco vua" color="white" >
+                        <img src="./asset/white/vua_trang.png" alt="Vua">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="8d">
+                    <div class="coordinate whiteText">d</div>
+                    <div class="quanco hau" color="white" >
+                        <img src="./asset/white/hau_trang.png" alt="Hau">
+                    </div>
+                </div>
+                <div class="ovuong white" id="8c">
+                    <div class="coordinate xanhText">c</div>
+                    <div class="quanco tuong" color="white" >
+                        <img src="./asset/white/tuong_trang.png" alt="Tuong">
+                    </div>
+                </div>
+                <div class="ovuong xanh" id="8b">
+                    <div class="coordinate whiteText">b</div>
+                    <div class="quanco ma" color="white" >
+                        <img src="./asset/white/ma_trang.png" alt="Ma">
+                    </div>
+                </div>
+                <div class="ovuong white" id="8a">
+                    <div class="coordinate xanhText">a</div>
+                    <div class="quanco xe" color="white" >
+                        <img src="./asset/white/xe_trang.png" alt="Xe">
+                    </div>
+                </div>
+            </div>
+                
+            <!-- Người chơi bản thân -->
+            <div class="player self-player">
+                <div class="player-info">
+                    <img src="./asset/model/user.png" alt="Your Avatar" class="avatar">
+                    
+                    <div class="player-detail">
+                        <p class="player_name">Bạn</p>
+                        <div class="captured-pieces" id="capturedBySelf">
+                            <!-- Các quân của đối thủ bị ăn sẽ hiển thị ở đây -->
+                             <img src="./asset/black/tot_den.png" alt="Tot">
+                        </div>
+                    </div>
+
+                </div>
+                <!-- Thời gian nằm trong player-info nhưng tách riêng -->
+                <div class="player-timer">
+                    <span id="opponentTimer">10:00</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sidebar-right">
+            <h2>Thông tin ván cờ</h2>
+            <div class="game-status">
+                <p><strong>Lượt hiện tại:</strong> <span id="turnInfo">Trắng</span></p>
+                <p><strong>Thời gian:</strong> <span id="timer">10:00</span></p>
+            </div>
+            <div class="game-controls">
+                <img src="./asset/model/redo.png" alt="Hoàn tác" id="redoBtn" title="Hoàn tác" class="control-btn">
+                <img src="./asset/model/finish.png" alt="Đầu hàng" id="surrenderBtn" title="Đầu hàng" class="control-btn">
+                <img src="./asset/model/hint.png" alt="Gợi ý" id="hintBtn" title="Gợi ý" class="control-btn">
+            </div>
+
+       
+         </div>
+    </div>
+    
+</body>
+
+<script>
+     // JS toggle sidebar khi click nút ☰
+        const toggle = document.getElementById("menu-toggle");
+        const navbar = document.getElementById("navbar");
+
+        toggle.addEventListener("click", () => {
+            navbar.classList.toggle("active");
+        });
+</script>
+</html>
