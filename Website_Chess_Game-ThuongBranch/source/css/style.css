@@ -1,0 +1,619 @@
+body {
+    /* Các dòng flex đã bị xóa */
+    background-color: #dddd;
+    margin: 0; /* Thêm dòng này để đảm bảo không có lề mặc định */
+}
+
+.center-page-content {
+    display: flex;
+    flex-direction: column; /* Xếp chữ "Game Cờ Vua" trên nút "Bat Dau" */
+    align-items: center;    /* Căn giữa theo chiều ngang */
+    justify-content: center; /* Căn giữa theo chiều dọc */
+    height: 100vh;           /* Chiếm 100% chiều cao màn hình */
+}
+
+/* Tổng thể: chia màn hình làm 2 phần (sidebar và chessboard) */
+
+#container {
+    display: flex;
+    height: 100vh;
+    margin-left: 150px; /* SỬA Ở ĐÂY */
+}
+
+/* Thanh bên trái */
+.navbar {
+    position: fixed;       /* cố định vị trí */
+    left: 0;               /* sát lề trái */
+    top: 0;                /* sát đỉnh trên */
+    width: 150px;         
+    height: 100vh;         /* chiếm toàn chiều cao màn hình */
+    background-color: #2c3e50;
+    color: #ecf0f1;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow-y: auto;      /* nếu menu dài, cho cuộn trong sidebar */
+    transition: transform 0.3s ease;
+}
+
+
+.navbar h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.navbar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.navbar li {
+    margin: 10px 0;
+}
+
+.navbar a {
+    color: #ecf0f1;
+    text-decoration: none;
+    display: block;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+.navbar a:hover {
+    background-color: #34495e;
+}
+
+
+
+/* nội dung chính */
+#main_content {
+    display: flex;
+    flex-direction: column; /* xếp dọc */
+    align-items: center; /* căn giữa ngang */
+    justify-content: space-between; /* chia đều khoảng cách */
+    gap: 8px; /* khoảng cách giữa các phần */
+    padding: 5px;
+    flex: 1;
+}
+
+/* Phần hiển thị người chơi */
+.player {
+    display: flex;
+    justify-content: space-between; /* tách trái - phải */
+    width: 100%; /* cho vừa sidebar hoặc main */
+    background-color: #f0d9b5;
+}
+
+.player-info {
+  display: flex;
+  align-items: center; /* căn giữa ảnh và nội dung theo trục dọc */
+  gap: 10px; /* khoảng cách giữa ảnh và phần chi tiết */
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  /* border-radius: 50%; */
+  object-fit: cover;
+}
+
+.player-detail {
+  display: flex;
+  flex-direction: column; /* tên ở trên, danh sách ở dưới */
+}
+
+.player_name {
+  font-weight: bold;
+  font-size: 18px;
+  margin: 0;
+  padding: 4px;
+}
+
+.captured-pieces {
+  display: flex;
+  flex-wrap: wrap; /* nếu có nhiều quân thì tự xuống dòng */
+  gap: 5px;
+}
+
+.captured-pieces img {
+    width: 25px;
+    height: 25px;
+}
+
+.player-timer {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  min-width: 60px;
+  text-align: center;
+  padding: 10px;
+  background-color: #2c3e50;
+}
+
+
+/* bàn cờ */
+.chessBoard {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    margin:auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.ovuong{
+    width: 12.5%;
+    height: 12.5%;
+    /* float: left; */
+    display: flex;
+    justify-content:  center;
+    align-items: center;
+    position: relative;
+}
+
+.white{
+    background-color: #f0d9b5;
+
+}
+
+.xanh{
+    background-color: #769656;
+}
+
+.coordinate{
+    height: auto;
+    display: flex;
+    bottom:4%;
+    right:4%;
+    position: absolute;
+    font-size: 12px;
+    font-weight: bold;
+    font-family:Verdana, Geneva, Tahoma, sans-serif ;
+}
+
+.whiteText{
+    color: #f0d9b5;
+}
+
+.xanhText{
+    color: #769656;
+}
+
+.rank{
+    top: 4%;
+    left: 4%;
+    right: auto;
+}
+
+.quanco{
+   width: 100%; 
+   z-index: 1;
+   cursor: pointer;
+}
+
+.quanco img{
+    max-width: 80%;
+    width: 80%;
+    height: auto;
+}
+
+
+/* thanh menu */
+.menu-toggle {
+    display: none; /* ẩn trên PC */
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #ecf0f1;
+    background-color: #2c3e50;
+    padding: 8px 12px;
+    border-radius: 6px;
+    z-index: 1001; /* cao hơn sidebar */
+}
+
+/* Sidebar phải */
+/* .sidebar-right {
+  width: 30vw;
+  height: 80%;
+  background-color: darkgray;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+  margin-left: 20px;
+  
+} */
+
+/* Sửa class .sidebar-right để nó rộng hơn */
+.sidebar-right {
+    width: 250px; /* Đặt chiều rộng cố định */
+    min-width: 250px; /* Đảm bảo nó không bị co lại */
+    
+    /* (Giữ nguyên các thuộc tính cũ của bạn) */
+    height: 80%;
+    background-color: darkgray;
+    color: white;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-left: 20px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 20px;
+    align-self: center;
+}
+
+/* Các nút hình ảnh */
+.game-controls {
+  display: flex;
+  flex-direction: column;      /* sắp xếp theo hàng ngang */
+  justify-content: space-between; /* chia đều khoảng cách */
+  align-items: center;
+  width: 100%;              /* chiếm hết chiều ngang sidebar */
+  gap: 10px;                /* khoảng cách giữa các ảnh */
+}
+
+.control-btn {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
+}
+
+
+
+
+/* Khối trạng thái */
+.game-status {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  width: 100%;
+}
+
+/* khi kích thước màn hình lớn từ 600 */
+@media (min-width:600px){
+    .chessBoard{
+        width: 440px;
+        height: 440px;
+    }
+}
+
+/* tùy chỉnh cho màn hình có độ phân giải nhỏ */
+@media (max-width:750px){
+    #container {
+        flex-direction: column;
+        height: auto;
+        padding: 20px 0;
+        margin-left: 0; /* THÊM DÒNG NÀY */
+    }
+
+    .sidebar-right{
+        width: 100%;
+        margin-left: 0;
+        margin-top: 20px;
+    }
+    .coordinate{
+        font-size: 8px;
+    }
+
+    /* Hiện nút menu */
+    .menu-toggle {
+        display: block;
+    }
+
+    /* Ẩn navbar mặc định */
+    .navbar {
+        transform: translateX(-100%);
+        width: 200px;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1000;
+        transition: transform 0.3s ease;
+    }
+
+    /* Khi nhấn ☰, navbar trượt ra */
+    .navbar.active {
+        transform: translateX(0);
+    }
+}
+
+/* === SỬA ĐỔI: Ưu tiên viền đỏ (check) hơn viền vàng (selected) === */
+.ovuong.selected:not(.check) {
+    outline: 4px solid #f9d71c; /* #f9d71c là một màu vàng sáng */
+    outline-offset: -4px; /* Đảm bảo viền nằm bên trong ô */
+}
+
+/* Đảm bảo bạn đã có class .check này (từ code CSS bạn gửi) */
+.ovuong.check {
+    outline: 4px solid #ff0000; /* Màu đỏ */
+    outline-offset: -4px;
+}
+.ovuong.possible-move {
+            /* * Thêm một lớp phủ màu xanh nhạt với độ trong suốt
+             * để chỉ ra các ô có thể di chuyển đến.
+            */
+            background-color: rgba(0, 255, 0, 0.4); /* Màu xanh lá cây với độ trong suốt */
+        }
+.ovuong.check {
+            /* * Thêm một đường viền màu đỏ nổi bật bên trong ô
+             * để cảnh báo vua đang bị chiếu tướng.
+            */
+            outline: 4px solid #ff0000; /* Màu đỏ */
+            outline-offset: -4px; /* Đảm bảo viền nằm bên trong ô */
+        }
+
+.ovuong {
+            /* Rất quan trọng:
+               Cần 'position: relative' để định vị dấu chấm gợi ý 
+               nằm bên trong ô cờ */
+            position: relative; 
+        }
+
+        /* === CSS CHO CHẤM GỢI Ý === */
+.move-hint {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            /* Dịch chuyển chấm về tâm ô */
+            transform: translate(-50%, -50%); 
+
+            width: 25px; /* Kích thước chấm */
+            height: 25px; /* Kích thước chấm */
+            background-color: rgba(0, 0, 0, 0.3); /* Màu chấm xám mờ */
+            border-radius: 50%; /* Biến thành hình tròn */
+
+            /* Quan trọng: Cho phép click "xuyên qua" chấm
+               để bạn có thể click vào ô cờ bên dưới nó */
+            pointer-events: none; 
+        }
+/* === CSS MỚI: HIỂN THỊ LƯỢT CHƠI === */
+.player {
+    transition: opacity 0.3s ease, border 0.3s ease;
+    border: 3px solid transparent; /* Thêm viền trong suốt để giữ bố cục */
+    border-radius: 10px;
+}
+
+/* Làm mờ người chơi không có lượt */
+.player:not(.active-turn) {
+    opacity: 0.6;
+}
+
+/* Highlight người chơi đang có lượt */
+.player.active-turn {
+    opacity: 1;
+    border-color: #f9d71c; /* Dùng màu vàng đồng bộ */
+    box-shadow: 0 0 15px rgba(249, 215, 28, 0.5);
+}
+
+/* === CSS MỚI: QUÂN CỜ BỊ ĂN === */
+.captured-pieces {
+    /* Đảm bảo các quân cờ xếp hàng ngang */
+    display: flex;
+    flex-wrap: wrap;
+    min-height: 25px; /* Giữ chiều cao tối thiểu */
+}
+
+.captured-pieces img {
+    width: 25px;  /* Kích thước nhỏ cho quân bị ăn */
+    height: 25px;
+    margin: 0 2px; /* Khoảng cách nhỏ giữa các quân */
+}
+
+/* === CSS MỚI: LỊCH SỬ NƯỚC ĐI === */
+.move-history-container {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.1); /* Màu nền mờ */
+    border-radius: 8px;
+    padding: 10px;
+    box-sizing: border-box;
+    height: 300px; /* Chiều cao cố định, bạn có thể thay đổi */
+    display: flex; /* Để tiêu đề và danh sách xếp chồng lên nhau */
+    flex-direction: column;
+    margin-top: 20px; /* Khoảng cách với các nút bên trên */
+}
+
+.move-history-container h3 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #333; /* Màu chữ tiêu đề */
+    font-size: 16px;
+}
+
+/* Vỏ bọc này sẽ chứa thanh cuộn */
+.move-list-wrapper {
+    flex: 1; /* Chiếm hết chiều cao còn lại */
+    overflow-y: auto; /* Đây là thanh cuộn! */
+    background-color: #f0f0f0; /* Nền trắng cho danh sách */
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+
+/* Danh sách nước đi (1., 2., 3.) */
+/* Sửa .move-list để TẮT số tự động của <ol> 
+   (vì chúng ta sẽ thêm số bằng JavaScript cho chính xác) */
+.move-list {
+    list-style-type: none; /* TẮT số tự động */
+    padding-left: 10px; /* Giảm padding thừa */
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+/* Sửa .move-list li để căn chỉnh */
+.move-list li {
+    display: flex;
+    gap: 10px; 
+    padding: 3px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #ddd;
+    align-items: baseline; /* Căn số và nước đi cho đẹp */
+}
+
+/* === THÊM MỚI: Class cho số thứ tự === */
+.move-number {
+    font-weight: normal;
+    color: #555;
+    width: 30px; /* Cho số 1 khoảng cố định */
+    flex-shrink: 0; /* Không cho nó co lại */
+}
+
+/* === THÊM MỚI: Class riêng cho nước đi === 
+   (Chúng ta sẽ thêm class này bằng JS) */
+.move-text {
+    width: 70px; /* Giữ nguyên độ rộng 70px */
+    font-weight: bold;
+}
+/* Kiểu cho mỗi nước đi (e.g., "e4" hoặc "Mc3") */
+.move-list li span {
+    width: 70px; /* Cho mỗi nước đi 1 độ rộng cố định */
+    font-weight: bold;
+}
+
+
+/* === THÊM MỚI: Modal kết thúc trò chơi === */
+/* === CSS MỚI: GIAO DIỆN KẾT THÚC (MODAL) === */
+.modal-overlay {
+    position: fixed; /* Che toàn bộ màn hình */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6); /* Nền đen mờ */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000; /* Đảm bảo nó nổi trên mọi thứ */
+    
+    /* Mặc định ẩn, dùng JS để hiện */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* Lớp 'show' sẽ được thêm bằng JS để hiển thị modal */
+.modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-content {
+    background-color: #fff;
+    color: #333;
+    padding: 30px 40px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    
+    /* Hiệu ứng zoom-in nhỏ */
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.show .modal-content {
+    transform: scale(1); /* Zoom-in khi hiển thị */
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    color: #c0392b; /* Màu đỏ cho tiêu đề */
+    font-size: 24px;
+}
+
+.modal-content p {
+    font-size: 1.1rem;
+    margin: 15px 0 25px 0;
+}
+
+.modal-content button {
+    background-color: #27ae60; /* Màu xanh lá */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.modal-content button:hover {
+    background-color: #2ecc71;
+}
+.difficulty-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Khoảng cách giữa các nút */
+    margin-top: 25px;
+}
+
+.difficulty-btn {
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+.difficulty-btn[data-difficulty="easy"] {
+    background-color: #27ae60; /* Xanh lá */
+}
+.difficulty-btn[data-difficulty="easy"]:hover {
+    background-color: #2ecc71;
+}
+
+.difficulty-btn[data-difficulty="normal"] {
+    background-color: #2980b9; /* Xanh dương */
+}
+.difficulty-btn[data-difficulty="normal"]:hover {
+    background-color: #3498db;
+}
+
+.difficulty-btn[data-difficulty="hard"] {
+    background-color: #c0392b; /* Đỏ */
+}
+.difficulty-btn[data-difficulty="hard"]:hover {
+    background-color: #e74c3c;
+}
+
+/* Kiểu cho Modal Phong Cấp */
+.promotion-choices {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.promotion-choices img {
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    border-radius: 5px;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+    background-color: #eee; /* Nền nhẹ để dễ thấy */
+}
+
+.promotion-choices img:hover {
+    border-color: #3498db;
+    transform: scale(1.1);
+}
