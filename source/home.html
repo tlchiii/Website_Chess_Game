@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ - Cờ Vua</title>
+    <link rel="stylesheet" href="./css/style.css">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <style>
+
+        #main_content {
+            display: flex;
+            flex-direction: column; /* Xếp slider và feed theo chiều dọc */
+            height: 100%; /* Đảm bảo nó chiếm đủ chiều cao */
+            overflow-y: auto; /* Cho phép cuộn nếu nội dung dài */
+        }
+
+        /* === 1. KHU VỰC SLIDER TIN TỨC (1/3 MÀN HÌNH) === */
+        .news-slider {
+            width: 100%;
+            /* Chiếm khoảng 1/3 chiều cao viewport, có thể điều chỉnh */
+            height: 55vh; 
+            background-color: #222; /* Màu nền cho slider */
+        }
+    
+        /* CSS cho thư viện Swiper.js (ví dụ) */
+        .swiper-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Đảm bảo ảnh lấp đầy mà không bị méo */
+        }
+        /* Đảm bảo khung Swiper và các slide cỡ bằng khung .news-slider */
+        .news-slider .swiper,
+        .news-slider .swiper-wrapper,
+        .news-slider .swiper-slide {
+            height: 100%;
+        }
+        /* Ensure absolute caption positions relative to slide */
+        .news-slider .swiper-slide {
+            position: relative;
+        }
+        /* Make slide links fill the slide */
+        .slide-link {
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: inherit;
+            text-decoration: none;
+        }
+        .swiper-slide .slide-caption {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+
+        /* === 2. KHU VỰC FEED BÀI ĐĂNG (PHẦN CÒN LẠI) === */
+        .post-feed {
+            width: 100%;
+            padding: 20px;
+            /* Chiếm phần còn lại */
+            flex-grow: 1; 
+            background-color: #f0f2f5; /* Màu nền xám nhạt */
+        }
+
+        .post-item {
+            background-color: #fff; /* Mỗi bài đăng có nền trắng */
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px; /* Khoảng cách giữa các bài đăng */
+            padding: 15px;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .post-username {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .post-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #111;
+            margin-bottom: 10px;
+        }
+
+        .post-content p {
+            font-size: 1rem;
+            color: #444;
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+        /* Make post images and videos the same smaller size (16:9) */
+        .post-content img,
+        .post-content .video-wrapper {
+            width: 320px;         /* desired fixed size */
+            max-width: 100%;      /* responsive on small screens */
+            height: 180px;        /* maintain 16:9 */
+            object-fit: cover;    /* crop nicely */
+            border-radius: 5px;
+            margin-top: 10px;
+            display: block;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        .action-btn {
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: none;
+            font-weight: bold;
+        }
+        .like-btn { background-color: #e6f2ff; color: #007bff; }
+        .dislike-btn { background-color: #fbebee; color: #dc3545; }
+
+        .comment-section {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .comment-input {
+            width: 70%; /* shorter width */
+            padding: 6px 12px; /* normal padding */
+            height: 36px; /* fixed shorter height */
+            border: 1px solid #ddd;
+            border-radius: 18px;
+            box-sizing: border-box;
+            font-size: 0.95rem;
+            line-height: 1.1;
+        }
+
+        /* === LOGIN/REGISTER MODAL === */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-header h2 {
+            margin: 0;
+            color: #333;
+        }
+        .close-btn {
+            cursor: pointer;
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+        .close-btn:hover {
+            color: #333;
+        }
+        .modal-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #999;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+        /* Send comment as circular icon (Facebook-like) */
+        .send-comment {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 50%;
+            background-color: #1877f2; /* Facebook blue */
+            color: #fff;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            flex: 0 0 auto;
+        }
+        .send-comment svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+            fill: currentColor;
+        }
+        .send-comment:hover {
+            background-color: #155db8;
+        }
+        /* Video wrapper sized to match images */
+        .video-wrapper {
+            width: 320px;
+            max-width: 100%;
+            height: 180px;
+            margin-top: 10px;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+            border-radius: 5px;
+        }
+        .video-wrapper iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            display: block;
+        }
+        /* Poster image and play overlay */
+        .video-poster {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .video-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .play-overlay {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 56px;
+            height: 56px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .play-overlay svg { width: 28px; height: 28px; fill: #fff; }
+        /* Floating create-post button (FAB) */
+        /* Floating create-post button (FAB) - Đã sửa đổi cho text */
+        .fab {
+            position: fixed;
+            right: 40px;
+            bottom: 100px;
+            z-index: 1200;
+
+            /* Thay đổi kích thước để vừa với chữ */
+            width: auto;           /* Để chiều rộng tự giãn theo chữ */
+            height: 48px;          /* Chiều cao cố định (nhỏ hơn cũ một chút cho gọn) */
+            padding: 0 20px;       /* Khoảng cách 2 bên chữ */
+            border-radius: 24px;   /* Bo tròn 2 đầu (bằng 1 nửa chiều cao) */
+
+            /* Style cho chữ */
+            font-weight: bold;
+            font-size: 1.3rem;
+            text-decoration: none;
+            white-space: nowrap;   /* Giữ chữ trên 1 dòng */
+
+            /* Màu sắc và hiệu ứng cũ giữ nguyên */
+            background: linear-gradient(180deg, #2d8cff, #1b66d1);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 18px rgba(27, 102, 209, 0.25);
+            transition: transform 0.2s ease; /* Thêm hiệu ứng mượt khi hover */
+        }
+
+        .fab:hover {
+            transform: translateY(-2px);
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+    <div class="navbar" id="navbar">
+        <h2>Menu</h2>
+        <ul>
+            <li><a href="./home.html">Trang chủ</a></li>
+            <li><a href="./play.html">Chơi với máy</a></li>
+            <li><a href="./play_people.html">Chơi 2 người</a></li>
+            <li><a href="#">Phân tích ván cờ</a></li>
+            <li><a href="#">Hướng dẫn</a></li>
+        </ul>
+    </div>
+
+    <div id="container">
+        <div id="main_content">
+
+            <div class="news-slider">
+                <div class="swiper">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                                <a class="slide-link" href="https://vnexpress.net/quang-liem-bi-loai-sau-ba-lan-chet-hut-o-world-cup-co-vua-4964640.html" target="_blank" rel="noopener noreferrer">
+                                <img src="./asset/news/news1.png" alt="Tin tức 1">
+                                <div class="slide-caption">Quang Liêm bị loại sau ba lần 'chết hụt' ở World Cup cờ vua</div>
+                                </a>
+                            </div>
+                            <div class="swiper-slide">
+                                <a class="slide-link" href="https://vnexpress.net/viet-nam-thong-tri-mon-co-vua-dai-hoi-the-thao-tri-tue-chau-a-4964413.html" target="_blank" rel="noopener noreferrer">
+                                <img src="./asset/news/news2.png" alt="Tin tức 2">
+                                <div class="slide-caption">Việt Nam thống trị môn cờ vua Đại hội Thể thao Trí tuệ châu Á</div>
+                                </a>
+                            </div>
+                            <div class="swiper-slide">
+                                <a class="slide-link" href="https://vnexpress.net/gukesh-som-bi-loai-o-world-cup-co-vua-4961739.html" target="_blank" rel="noopener noreferrer">
+                                <img src="./asset/news/news3.png" alt="Tin tức 3">
+                                <div class="slide-caption">Gukesh sớm bị loại ở World Cup cờ vua</div>
+                                </a>
+                            </div>
+                            <div class="swiper-slide">
+                                <a class="slide-link" href="https://vnexpress.net/carlsen-thang-ap-dao-tai-sieu-giai-clutch-chess-4957583.html#lg=gallery_1&slide=0" target="_blank" rel="noopener noreferrer">
+                                    <img src="./asset/news/news4.png" alt="Tin tức 4">
+                                    <div class="slide-caption">Carlsen thắng áp đảo tại siêu giải Clutch Chess</div>
+                                </a>
+                            </div>
+                        </div>
+                        <!-- Swiper navigation (kept empty; Swiper shows default arrows) -->
+                        <div class="swiper-button-prev"></div>
+                        <div class="swiper-button-next"></div>
+                    </div>
+            </div>
+
+            <div class="post-feed">
+
+                <div class="post-item">
+                    <div class="post-header">
+                        <img src="./asset/model/user.png" alt="Avatar" class="post-avatar">
+                        <span class="post-username">NguoiChoi_A</span>
+                    </div>
+                    <h3 class="post-title">Một thế cờ hay tôi mới tìm được!</h3>
+                    <div class="post-content">
+                        <p>Mọi người nghĩ sao về nước đi Mã f3 ở đây? Tôi thấy nó khá là mạo hiểm nhưng cũng đầy bất ngờ...</p>
+                        <img src="./asset/posts/theco1.png" alt="Thế cờ">
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn like-btn require-login">👍 Thích (15)</button>
+                        <button class="action-btn dislike-btn require-login">👎</button>
+                    </div>
+                    <div class="comment-section">
+                        <input type="text" class="comment-input" placeholder="Viết bình luận...">
+                        <button class="action-btn send-comment require-login" aria-label="Gửi bình luận" title="Gửi bình luận">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="post-item">
+                    <div class="post-header">
+                        <img src="./asset/model/bot.png" alt="Avatar" class="post-avatar">
+                        <span class="post-username">KỳThủ_Pro</span>
+                    </div>
+                    <h3 class="post-title">Video phân tích ván cờ của tôi</h3>
+                    <div class="post-content">
+                        <p>Đây là video tôi phân tích lại ván cờ tại giải vô địch vừa rồi.</p>
+                        <div class="video-wrapper">
+                                <a class="video-poster" href="https://www.youtube.com/watch?v=djLFSOqrB1o&t=837s" target="_blank" rel="noopener noreferrer">
+                                    <img src="https://img.youtube.com/vi/djLFSOqrB1o/hqdefault.jpg" alt="Video phân tích - poster">
+                                    <span class="play-overlay" aria-hidden="true">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                            <path d="M8 5v14l11-7z"></path>
+                                        </svg>
+                                    </span>
+                                </a>
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <button class="action-btn like-btn require-login">👍 Thích (42)</button>
+                        <button class="action-btn dislike-btn require-login">👎</button>
+                    </div>
+                    <div class="comment-section">
+                        <input type="text" class="comment-input" placeholder="Viết bình luận...">
+                        <button class="action-btn send-comment require-login" aria-label="Gửi bình luận" title="Gửi bình luận">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                </div>
+        </div>
+
+        </div>
+
+    <!-- Floating Create Post button -->
+    <a class="fab" href="./create_post.html" title="Tạo bài viết">
+        Tạo bài viết
+    </a>
+
+    <!-- Login/Register Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Đăng nhập / Đăng ký</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            
+            <div class="modal-tabs">
+                <button class="tab-btn active" data-tab="login">Đăng nhập</button>
+                <button class="tab-btn" data-tab="register">Đăng ký</button>
+            </div>
+
+            <!-- Login Tab -->
+            <div id="login" class="tab-content active">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email hoặc Tên đăng nhập:</label>
+                        <input type="text" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Mật khẩu:</label>
+                        <input type="password" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Đăng nhập</button>
+                </form>
+            </div>
+
+            <!-- Register Tab -->
+            <div id="register" class="tab-content">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerName">Tên đầy đủ:</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Email:</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Mật khẩu:</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Xác nhận mật khẩu:</label>
+                        <input type="password" id="registerConfirmPassword" required>
+                    </div>
+                    <button type="submit" class="submit-btn">Đăng ký</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<script>
+        const toggle = document.getElementById("menu-toggle");
+        const navbar = document.getElementById("navbar");
+        toggle.addEventListener("click", () => {
+            navbar.classList.toggle("active");
+        });
+
+        // === 1. MODAL HANDLING (Đăng nhập/Đăng ký) ===
+        const authModal = document.getElementById("authModal");
+        const closeModal = document.getElementById("closeModal");
+        const tabBtns = document.querySelectorAll(".tab-btn");
+        const requireLoginElements = document.querySelectorAll(".require-login");
+
+        requireLoginElements.forEach(element => {
+            element.addEventListener("click", (e) => {
+                e.preventDefault();
+                authModal.style.display = "block";
+            });
+        });
+
+        closeModal.addEventListener("click", () => {
+            authModal.style.display = "none";
+        });
+        window.addEventListener("click", (e) => {
+            if (e.target === authModal) {
+                authModal.style.display = "none";
+            }
+        });
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                tabBtns.forEach(b => b.classList.remove("active"));
+                document.querySelectorAll(".tab-content").forEach(content => {
+                    content.classList.remove("active");
+                });
+                btn.classList.add("active");
+                document.getElementById(btn.dataset.tab).classList.add("active");
+            });
+        });
+
+        // === 2. HÀM HỖ TRỢ XỬ LÝ LINK YOUTUBE ===
+        function getYoutubeId(url) {
+            if (!url) return null;
+            // Regex bắt các dạng link: youtu.be, watch?v=, embed, v/, ...
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;')
+                      .replace(/'/g, '&#039;');
+        }
+
+        // === 3. RENDER BÀI VIẾT (DEMO POSTS) ===
+        function renderDemoPosts() {
+            try {
+                const posts = JSON.parse(localStorage.getItem('demo_posts') || '[]');
+                const postFeed = document.querySelector('.post-feed');
+                if (!postFeed || posts.length === 0) return;
+                
+                posts.forEach(post => {
+                    let videoHtml = '';
+                    
+                    if (post.video) {
+                        const ytId = getYoutubeId(post.video);
+                        
+                        // A. Nếu là YouTube: Hiển thị Poster + Nút Play (Lazy Load)
+                        if (ytId) {
+                            videoHtml = `
+                                <div class="video-wrapper">
+                                    <a class="video-poster" href="https://www.youtube.com/watch?v=${ytId}" target="_blank" rel="noopener noreferrer">
+                                        <img src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" alt="Video thumbnail">
+                                        <span class="play-overlay" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                                <path d="M8 5v14l11-7z"></path>
+                                            </svg>
+                                        </span>
+                                    </a>
+                                </div>`;
+                        } 
+                        // B. Nếu là file MP4/Upload: Hiển thị thẻ Video thường
+                        else {
+                            videoHtml = `
+                                <div class="video-wrapper" style="margin-top: 10px;">
+                                    <video controls style="width: 100%; height: 100%; border-radius: 5px; background: #000;">
+                                        <source src="${escapeHtml(post.video)}">
+                                        Trình duyệt của bạn không hỗ trợ thẻ video.
+                                    </video>
+                                </div>`;
+                        }
+                    }
+
+                    const postHTML = `
+                        <div class="post-item">
+                            <div class="post-header">
+                                <img src="./asset/model/user.png" alt="Avatar" class="post-avatar">
+                                <span class="post-username">Bạn</span>
+                            </div>
+                            <h3 class="post-title">${escapeHtml(post.title)}</h3>
+                            <div class="post-content">
+                                <p>${escapeHtml(post.content)}</p>
+                                ${post.image ? `<img src="${escapeHtml(post.image)}" alt="Post ảnh" style="max-width: 100%; border-radius: 8px;">` : ''}
+                                ${videoHtml}
+                            </div>
+                            <div class="post-actions">
+                                <button class="action-btn like-btn require-login">👍 Thích (0)</button>
+                                <button class="action-btn dislike-btn require-login">👎</button>
+                            </div>
+                            <div class="comment-section">
+                                <input type="text" class="comment-input" placeholder="Viết bình luận...">
+                                <button class="action-btn send-comment require-login">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;fill:white">
+                                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = postHTML;
+                    postFeed.insertBefore(tempDiv.firstElementChild, postFeed.firstElementChild);
+                });
+            } catch (err) {
+                console.warn('Error rendering demo posts', err);
+            }
+        }
+
+        // === 4. XỬ LÝ SỰ KIỆN CLICK VÀO VIDEO POSTER (LAZY LOAD) ===
+        function attachVideoClickEvents() {
+            // Chọn tất cả các poster chưa được gắn sự kiện (tránh gắn trùng lặp)
+            document.querySelectorAll('.video-poster:not([data-attached="true"])').forEach(poster => {
+                // Đánh dấu đã gắn
+                poster.setAttribute('data-attached', 'true');
+
+                poster.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Lấy ID từ ảnh thumbnail hoặc link href
+                    const img = poster.querySelector('img');
+                    let videoId = null;
+                    
+                    // Cách 1: Lấy từ src ảnh (img.youtube.com/vi/ID/...)
+                    if (img && img.src) {
+                        const m = img.src.match(/\/vi\/([^\/]+)\//);
+                        if (m && m[1]) videoId = m[1];
+                    }
+                    
+                    // Cách 2: Lấy từ href (fallback)
+                    if (!videoId && poster.href) {
+                        videoId = getYoutubeId(poster.href);
+                    }
+
+                    if (!videoId) {
+                        window.open(poster.href, '_blank', 'noopener');
+                        return;
+                    }
+
+                    // Tạo iframe YouTube thay thế Poster
+                    const iframe = document.createElement('iframe');
+                    iframe.setAttribute('allowfullscreen', '');
+                    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.style.border = '0';
+                    iframe.src = 'https://www.youtube.com/embed/' + encodeURIComponent(videoId) + '?autoplay=1';
+                    
+                    const wrapper = poster.closest('.video-wrapper');
+                    if (wrapper) {
+                        wrapper.innerHTML = ''; // Xóa poster và nút play cũ
+                        wrapper.appendChild(iframe); // Chèn iframe vào
+                    }
+                });
+            });
+        }
+
+        // === 5. KHỞI CHẠY ===
+        // Bước 1: Render bài viết từ LocalStorage (Bài của "Bạn")
+        renderDemoPosts();
+        
+        // Bước 2: Gắn sự kiện click cho cả bài của "Bạn" và bài mẫu "KỳThủ_Pro"
+        attachVideoClickEvents();
+
+
+        // Form submissions (Placeholder)
+        document.getElementById("loginForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            alert("Đăng nhập thành công!");
+            authModal.style.display = "none";
+        });
+        document.getElementById("registerForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const password = document.getElementById("registerPassword").value;
+            const confirmPassword = document.getElementById("registerConfirmPassword").value;
+            if (password !== confirmPassword) {
+                alert("Mật khẩu không khớp!");
+                return;
+            }
+            alert("Đăng ký thành công!");
+            authModal.style.display = "none";
+        });
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        // Khởi tạo Swiper
+        const swiper = new Swiper('.swiper', {
+            loop: true, // Lặp lại
+            autoplay: {
+                delay: 3000, // Tự động trượt sau 3 giây
+            },
+            // Thêm nút điều hướng
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+        });
+    </script>
+
+</body>
+</html>

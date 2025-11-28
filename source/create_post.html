@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tạo bài viết - Cờ Vua</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; background:#f6f8fb; color:#222; }
+    .container { max-width: 760px; margin: 28px auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+    h1 { margin: 0 0 12px 0; }
+    .form-group { margin-bottom: 12px; }
+    label { display:block; margin-bottom:6px; font-weight:600; }
+    input[type=text], textarea { width:100%; padding:8px 10px; border:1px solid #ddd; border-radius:6px; box-sizing:border-box; }
+    textarea { min-height:140px; resize:vertical; }
+    .row { display:flex; gap:12px; }
+    .row .col { flex:1; }
+    .btn { display:inline-block; padding:10px 14px; background:#1877f2; color:#fff; border-radius:6px; text-decoration:none; border:none; cursor:pointer; }
+    .btn.secondary { background:#6c757d; }
+    .actions { display:flex; gap:10px; margin-top:10px; }
+    .note { font-size:0.9rem; color:#666; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="./home.html">← Quay về</a>
+    <h1>Tạo bài viết mới</h1>
+
+    <form id="createPostForm">
+      <div class="form-group">
+        <label for="postTitle">Tiêu đề</label>
+        <input id="postTitle" name="title" type="text" placeholder="Tiêu đề bài viết" required>
+      </div>
+
+      <div class="form-group">
+        <label for="postContent">Nội dung</label>
+        <textarea id="postContent" name="content" placeholder="Viết nội dung..." required></textarea>
+      </div>
+
+      <div class="row">
+        <div class="col form-group">
+          <label for="postImage">URL ảnh (tuỳ chọn) hoặc tải lên</label>
+          <input id="postImage" name="image" type="text" placeholder="https://.../image.png">
+            <div id="uploadArea" style="margin-top:8px;padding:8px;border:1px dashed #ccc;border-radius:6px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+              <input id="postImageFile" type="file" accept="image/*" style="flex:0 0 auto">
+              <div id="dropHint" style="color:#666;font-size:0.9rem;">Hoặc kéo thả ảnh vào đây / paste ảnh vào ô nội dung</div>
+              <div id="imagePreview" style="max-width:88px;max-height:60px;display:none;"></div>
+            </div>
+        </div>
+        <div class="col form-group">
+          <label for="postVideo">URL video (YouTube link hoặc MP4)</label>
+          <input id="postVideo" name="video" type="text" placeholder="https://...">
+          <div id="videoUploadArea" style="margin-top:8px;padding:8px;border:1px dashed #ccc;border-radius:6px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+            <input id="postVideoFile" type="file" accept="video/*" style="flex:0 0 auto">
+            <div id="videoDropHint" style="color:#666;font-size:0.9rem;">Hoặc kéo thả video vào đây</div>
+          </div>
+          <div id="videoPreview" style="margin-top:8px;max-width:320px;display:none;"></div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" type="submit">Tạo bài viết</button>
+        <a class="btn secondary" href="./home.html">Hủy</a>
+      </div>
+
+      <div id="createStatus" style="margin-top:12px;color:#155db8;font-weight:600;display:none;"></div>
+    </form>
+  </div>
+
+  <script>
+    // helper: set image dataURL when uploaded
+    let uploadedImageData = null;
+    // helper: uploaded/pasted video data
+    let uploadedVideoData = null; // data URL (base64) if small
+    let uploadedVideoObjectURL = null; // object URL for large blobs (session only)
+    function setImageDataURL(dataURL) {
+      uploadedImageData = dataURL;
+      const preview = document.getElementById('imagePreview');
+      if (dataURL) {
+        preview.style.display = 'block';
+        preview.innerHTML = '<img src="'+dataURL+'" style="max-width:88px;max-height:60px;border-radius:4px;display:block;">';
+        // clear URL field to avoid confusion
+        document.getElementById('postImage').value = '';
+      } else {
+        preview.style.display = 'none';
+        preview.innerHTML = '';
+      }
+    }
+
+    // Try to fetch a remote image and convert to data URL (may fail due to CORS)
+    async function fetchImageAsDataURL(url) {
+      console.log('Attempting to fetch image for conversion:', url);
+      const res = await fetch(url, { mode: 'cors' });
+      if (!res.ok) throw new Error('Fetch failed: ' + res.status);
+      const blob = await res.blob();
+      if (!blob.type || !blob.type.startsWith('image')) throw new Error('Not an image');
+      return await new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload = () => resolve(fr.result);
+        fr.onerror = reject;
+        fr.readAsDataURL(blob);
+      });
+    }
+
+    function clearVideoPreview() {
+      const vp = document.getElementById('videoPreview');
+      vp.style.display = 'none';
+      vp.innerHTML = '';
+      if (uploadedVideoObjectURL) {
+        try { URL.revokeObjectURL(uploadedVideoObjectURL); } catch(e){}
+        uploadedVideoObjectURL = null;
+      }
+      uploadedVideoData = null;
+    }
+
+    function setVideoPreviewWithSrc(src, isIframe) {
+      const vp = document.getElementById('videoPreview');
+      vp.style.display = 'block';
+      if (isIframe) {
+        vp.innerHTML = '<iframe src="'+src+'" style="width:320px;height:180px;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+      } else {
+        vp.innerHTML = '<video controls style="width:320px;height:180px;max-width:100%;"><source src="'+src+'"></video>';
+      }
+    }
+
+    // references for file inputs
+    const fileInput = document.getElementById('postImageFile');
+    const videoFileInput = document.getElementById('postVideoFile');
+    const videoUploadArea = document.getElementById('videoUploadArea');
+
+    // handle file input change
+    fileInput.addEventListener('change', function(e){
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      if (!f.type.startsWith('image/')) { alert('Vui lòng chọn file ảnh.'); return; }
+      const r = new FileReader();
+      r.onload = function(){ setImageDataURL(r.result); fileInput.value = ''; };
+      r.readAsDataURL(f);
+    });
+
+    // drag and drop for images
+    const uploadArea = document.getElementById('uploadArea');
+    uploadArea.addEventListener('dragover', function(e){ e.preventDefault(); uploadArea.style.borderColor = '#1b66d1'; });
+    uploadArea.addEventListener('dragleave', function(e){ uploadArea.style.borderColor = '#ccc'; });
+    uploadArea.addEventListener('drop', function(e){
+      e.preventDefault(); uploadArea.style.borderColor = '#ccc';
+      const f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!f) return;
+      if (!f.type.startsWith('image/')) { alert('Vui lòng thả file ảnh.'); return; }
+      const r = new FileReader(); r.onload = function(){ setImageDataURL(r.result); fileInput.value = ''; };
+      r.readAsDataURL(f);
+    });
+
+    // handle video file input change
+    videoFileInput.addEventListener('change', function(e){
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      if (!f.type.startsWith('video/')) { alert('Vui lòng chọn file video.'); return; }
+      // Only accept videos <= 5MB (convert to data URL for persistence)
+      if (f.size && f.size > 5*1024*1024) {
+        alert('File video quá lớn. Vui lòng chọn file nhỏ hơn 5MB.');
+        this.value = '';
+        return;
+      }
+      try {
+        const fr = new FileReader();
+        fr.onload = function(){ uploadedVideoData = fr.result; uploadedVideoObjectURL = null; setVideoPreviewWithSrc(uploadedVideoData, false); console.log('Video file input: loaded as data URL, size:', f.size); };
+        fr.readAsDataURL(f);
+      } catch (err) {
+        console.warn('Video file read failed', err);
+        alert('Không thể đọc file video.');
+      }
+      this.value = '';
+    });
+
+    // drag and drop for videos
+    videoUploadArea.addEventListener('dragover', function(e){ e.preventDefault(); videoUploadArea.style.borderColor = '#1b66d1'; });
+    videoUploadArea.addEventListener('dragleave', function(e){ videoUploadArea.style.borderColor = '#ccc'; });
+    videoUploadArea.addEventListener('drop', function(e){
+      e.preventDefault(); videoUploadArea.style.borderColor = '#ccc';
+      const f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!f) return;
+      if (!f.type.startsWith('video/')) { alert('Vui lòng thả file video.'); return; }
+      // Only accept videos <= 5MB (convert to data URL for persistence)
+      if (f.size && f.size > 5*1024*1024) {
+        alert('File video quá lớn. Vui lòng thả file nhỏ hơn 5MB.');
+        return;
+      }
+      try {
+        const fr = new FileReader();
+        fr.onload = function(){ uploadedVideoData = fr.result; uploadedVideoObjectURL = null; setVideoPreviewWithSrc(uploadedVideoData, false); console.log('Video drop: loaded as data URL, size:', f.size); };
+        fr.readAsDataURL(f);
+      } catch (err) {
+        console.warn('Video drop failed', err);
+      }
+    });
+
+    // drag and drop
+    document.getElementById('postContent').addEventListener('paste', async function(e){
+      const clipboard = e.clipboardData || e.originalEvent && e.originalEvent.clipboardData;
+      if (!clipboard) return;
+
+      // 1) Prefer direct image blob from clipboard
+      const items = clipboard.items;
+      if (items && items.length) {
+        for (let i=0;i<items.length;i++){
+          const item = items[i];
+          if (item.type && item.type.indexOf('image') !== -1) {
+            const file = item.getAsFile();
+            const r = new FileReader();
+            r.onload = function(){ setImageDataURL(r.result); fileInput.value = ''; };
+            r.readAsDataURL(file);
+            e.preventDefault();
+            return;
+          }
+        }
+      }
+
+      // 2) If no blob, try HTML fragment (e.g. copying an <img> from a page)
+      const html = clipboard.getData && clipboard.getData('text/html');
+      if (html) {
+        try {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const img = doc.querySelector && doc.querySelector('img');
+          if (img && img.src) {
+            const src = img.src;
+            // try to convert remote image to dataURL (may fail due to CORS); fall back to URL preview
+            try {
+              const dataURL = await fetchImageAsDataURL(src);
+              console.log('Converted remote image to dataURL');
+              setImageDataURL(dataURL);
+            } catch (err) {
+              console.warn('Could not convert remote image to dataURL, using URL instead', err);
+              document.getElementById('postImage').value = src;
+              const preview = document.getElementById('imagePreview');
+              preview.style.display = 'block';
+              preview.innerHTML = '<img src="'+src+'" style="max-width:88px;max-height:60px;border-radius:4px;display:block;">';
+              uploadedImageData = null;
+            }
+            e.preventDefault();
+            return;
+          }
+        } catch (err) {
+          console.warn('Paste HTML parse failed', err);
+        }
+      }
+
+      // 3) If plain text contains an image URL, use it
+      const text = clipboard.getData && clipboard.getData('text/plain');
+      if (text) {
+        const t = text.trim();
+        if (t.match(/^https?:\/\/.+\.(png|jpe?g|gif|webp)(\?.*)?$/i)) {
+          document.getElementById('postImage').value = t;
+          const preview = document.getElementById('imagePreview');
+          preview.style.display = 'block';
+          preview.innerHTML = '<img src="'+t+'" style="max-width:88px;max-height:60px;border-radius:4px;display:block;">';
+          uploadedImageData = null;
+          e.preventDefault();
+          return;
+        }
+      }
+      // otherwise do default paste behavior
+    });
+
+      // Paste handler for video input: accept video blobs, iframe/video HTML, YouTube links, and MP4/WebM URLs
+      document.getElementById('postVideo').addEventListener('paste', async function(e){
+        const clipboard = e.clipboardData || e.originalEvent && e.originalEvent.clipboardData;
+        if (!clipboard) return;
+
+        // 1) video blob
+        const items = clipboard.items;
+        if (items && items.length) {
+          for (let i=0;i<items.length;i++){
+            const item = items[i];
+            if (item.type && item.type.indexOf('video') !== -1) {
+              const file = item.getAsFile();
+              // small videos -> data URL (may be large); otherwise create object URL
+              try {
+                if (file.size && file.size <= 2*1024*1024) {
+                  const fr = new FileReader();
+                  fr.onload = function(){ uploadedVideoData = fr.result; uploadedVideoObjectURL = null; setVideoPreviewWithSrc(uploadedVideoData, false); };
+                  fr.readAsDataURL(file);
+                } else {
+                  if (uploadedVideoObjectURL) try{ URL.revokeObjectURL(uploadedVideoObjectURL); }catch(e){}
+                  uploadedVideoObjectURL = URL.createObjectURL(file);
+                  uploadedVideoData = null;
+                  setVideoPreviewWithSrc(uploadedVideoObjectURL, false);
+                }
+              } catch (err) {
+                console.warn('Video paste handling failed', err);
+              }
+              this.value = '';
+              e.preventDefault();
+              return;
+            }
+          }
+        }
+
+        // 2) HTML fragment with <iframe> or <video> or <source>
+        const html = clipboard.getData && clipboard.getData('text/html');
+        if (html) {
+          try {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const iframe = doc.querySelector && doc.querySelector('iframe');
+            const video = doc.querySelector && doc.querySelector('video');
+            const source = doc.querySelector && doc.querySelector('source');
+            if (iframe && iframe.src) {
+              // put iframe src into input and preview as iframe
+              this.value = iframe.src;
+              clearVideoPreview();
+              setVideoPreviewWithSrc(iframe.src, true);
+              uploadedVideoData = null;
+              e.preventDefault();
+              return;
+            }
+            if (video && (video.src || (source && source.src))) {
+              const src = video.src || (source && source.src);
+              this.value = src;
+              clearVideoPreview();
+              setVideoPreviewWithSrc(src, false);
+              uploadedVideoData = null;
+              e.preventDefault();
+              return;
+            }
+          } catch (err) {
+            console.warn('Paste HTML parse failed for video', err);
+          }
+        }
+
+        // 3) plain text URL (youtube or direct video file)
+        const text = clipboard.getData && clipboard.getData('text/plain');
+        if (text) {
+          const t = text.trim();
+          // youtube links
+          if (t.match(/(?:youtube.com\/watch\?v=|youtu.be\/)/i)) {
+            this.value = t;
+            // build embed src for preview
+            const m = t.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{6,})/i);
+            const id = m && m[1];
+            if (id) {
+              const embed = 'https://www.youtube.com/embed/'+id+'?rel=0&autoplay=0';
+              clearVideoPreview();
+              setVideoPreviewWithSrc(embed, true);
+              uploadedVideoData = null;
+              e.preventDefault();
+              return;
+            }
+          }
+          // direct video file URL
+          if (t.match(/^https?:\/\/.+\.(mp4|webm|ogg)(\?.*)?$/i)) {
+            this.value = t;
+            clearVideoPreview();
+            setVideoPreviewWithSrc(t, false);
+            uploadedVideoData = null;
+            e.preventDefault();
+            return;
+          }
+        }
+        // otherwise let default paste occur
+      });
+    // if user types an image URL, assume they want the URL instead of uploaded image
+    document.getElementById('postImage').addEventListener('input', function(){
+      const v = this.value.trim();
+      if (v) {
+        uploadedImageData = null;
+        setImageDataURL(null);
+      }
+    });
+
+    // allow pasting images or image URLs directly into the image URL input
+    document.getElementById('postImage').addEventListener('paste', async function(e){
+      const clipboard = e.clipboardData || e.originalEvent && e.originalEvent.clipboardData;
+      if (!clipboard) return;
+
+      // 1) image blob
+      const items = clipboard.items;
+      if (items && items.length) {
+        for (let i=0;i<items.length;i++){
+          const item = items[i];
+          if (item.type && item.type.indexOf('image') !== -1) {
+            const file = item.getAsFile();
+            const r = new FileReader();
+            r.onload = function(){ setImageDataURL(r.result); fileInput.value = ''; };
+            r.readAsDataURL(file);
+            e.preventDefault();
+            return;
+          }
+        }
+      }
+
+      // 2) HTML fragment containing <img>
+      const html = clipboard.getData && clipboard.getData('text/html');
+      if (html) {
+        try {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          const img = doc.querySelector && doc.querySelector('img');
+          if (img && img.src) {
+            const src = img.src;
+            try {
+              const dataURL = await fetchImageAsDataURL(src);
+              setImageDataURL(dataURL);
+            } catch (err) {
+              console.warn('Could not convert remote image to dataURL when pasting into URL input; using URL instead', err);
+              this.value = src;
+              const preview = document.getElementById('imagePreview');
+              preview.style.display = 'block';
+              preview.innerHTML = '<img src="'+src+'" style="max-width:88px;max-height:60px;border-radius:4px;display:block;">';
+              uploadedImageData = null;
+            }
+            e.preventDefault();
+            return;
+          }
+        } catch (err) {
+          console.warn('Paste HTML parse failed in postImage paste handler', err);
+        }
+      }
+
+      // 3) plain text image URL
+      const text = clipboard.getData && clipboard.getData('text/plain');
+      if (text) {
+        const t = text.trim();
+        if (t.match(/^https?:\/\/.+\.(png|jpe?g|gif|webp)(\?.*)?$/i)) {
+          this.value = t;
+          const preview = document.getElementById('imagePreview');
+          preview.style.display = 'block';
+          preview.innerHTML = '<img src="'+t+'" style="max-width:88px;max-height:60px;border-radius:4px;display:block;">';
+          uploadedImageData = null;
+          e.preventDefault();
+          return;
+        }
+      }
+      // otherwise, leave default paste behavior (e.g., typing or url text)
+    });
+
+  document.getElementById('createPostForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const statusEl = document.getElementById('createStatus');
+    console.log('createPostForm submit');
+    
+    const title = document.getElementById('postTitle').value.trim();
+    if (!title) { 
+        statusEl.style.display='block'; 
+        statusEl.textContent = 'Vui lòng nhập tiêu đề.'; 
+        return; 
+    }
+    
+    statusEl.style.display = 'block';
+    statusEl.textContent = 'Đang tạo bài viết...';
+
+    // --- SỬA LỖI VIDEO TẠI ĐÂY ---
+    // Logic: Chỉ lấy Data Base64 (nếu upload file) HOẶC lấy Link text (nếu paste link)
+    // Tuyệt đối KHÔNG lấy uploadedVideoObjectURL (link blob)
+    let finalVideo = null;
+    
+    if (uploadedVideoData) {
+        // Trường hợp 1: Người dùng upload file và đã được convert sang Base64
+        finalVideo = uploadedVideoData;
+    } else {
+        // Trường hợp 2: Người dùng paste link YouTube hoặc link file MP4 vào ô input
+        const videoInputVal = document.getElementById('postVideo').value.trim();
+        if (videoInputVal) {
+            finalVideo = videoInputVal;
+        }
+    }
+    // -----------------------------
+
+    // Simulate save: store to localStorage as demo
+    const post = {
+        id: Date.now(),
+        title: title,
+        content: document.getElementById('postContent').value,
+        image: uploadedImageData || document.getElementById('postImage').value.trim() || null,
+        video: finalVideo, // Sử dụng biến đã xử lý ở trên
+        createdAt: new Date().toISOString()
+    };
+
+    try {
+        const list = JSON.parse(localStorage.getItem('demo_posts') || '[]');
+        list.unshift(post);
+        localStorage.setItem('demo_posts', JSON.stringify(list));
+        console.log('Saved to localStorage', post);
+    } catch (err) {
+        console.warn('localStorage not available', err);
+        // Lỗi này thường xảy ra nếu file video Base64 quá nặng (>5MB) làm tràn bộ nhớ LocalStorage
+        statusEl.textContent = 'Lưu thất bại (File quá lớn hoặc LocalStorage bị đầy).';
+        return;
+    }
+
+    // show confirmation then redirect
+    statusEl.textContent = 'Bài viết đã được tạo. Đang quay về Trang chủ...';
+    setTimeout(() => { window.location.href = './home.html'; }, 900);
+});
+
+</script>
+</body>
+</html>
